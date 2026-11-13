@@ -1,0 +1,36 @@
+services:
+  bot:
+    build:
+      # To run from this file alone, replace "." with the repo's git URL.
+      context: .
+      dockerfile_inline: |
+        FROM python:3.14-slim
+        COPY --from=ghcr.io/astral-sh/uv:0.13.8 /uv /bin/uv
+        RUN apt-get update && apt-get install -y --no-install-recommends fonts-dejavu-core && rm -rf /var/lib/apt/lists/*
+        ENV UV_PYTHON_DOWNLOADS=never PATH="/app/.venv/bin:$$PATH"
+        WORKDIR /app
+        COPY pyproject.toml uv.lock ./
+        RUN uv sync --locked --no-dev --compile-bytecode
+        COPY bot.py skola24.py ./
+        RUN mkdir /data && chown 1000:1000 /data
+        USER 1000:1000
+        CMD ["python", "bot.py"]
+    environment:
+      # Optional: a DCACCOUNT: code to choose the bot's relay. Empty = fastest relay.
+      RELAY_QR: ""
+      DATA: /data
+    volumes:
+      # The bot's profile and encryption keys. Losing this means a new bot identity.
+      - data:/data
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 256m
+
+volumes:
+  data:
