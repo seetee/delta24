@@ -24,17 +24,34 @@ The bot is silent in 1:1 chats and in groups the owner is not in.
    docker compose logs bot
    ```
 
-   The log shows the bot's invite link.
+   The log shows the bot's invite link and a one-time `/claim` code.
 
-2. Open the invite link in Delta Chat and send the bot any message. The
-   first person to do this becomes the bot's owner, so do it right away
-   and keep the link private until then.
+2. Open the invite link in Delta Chat and send the bot the `/claim ...`
+   line from the log. You are now the bot's owner. The code changes at
+   every start and stops working once the bot has an owner.
 3. Add the bot to a group you are in.
 
 Update: run `docker compose up -d --build` again.
 
 The volume `data` holds the bot's profile and keys. If it is deleted, the
 bot becomes a new contact, forgets its owner, and must be invited again.
+
+## Good to know
+
+- **Who can use it.** The bot answers in every group that contains its
+  owner. Anyone who has both the owner and the bot as contacts can create
+  such a group, so treat the bot as usable by everyone who has met it.
+  It only hands out schedules that are public on the web anyway.
+- **What it stores.** As a group member the bot receives every message in
+  the group. It deletes them from its own storage after one hour and
+  sends no read receipts.
+- **Limits.** One request per person every 5 seconds and one per
+  2 seconds in total; the rest are silently dropped.
+- **Keep it patched.** Nothing updates by itself. About once a month:
+
+  ```
+  docker compose build --pull --no-cache && docker compose up -d
+  ```
 
 ## Develop
 

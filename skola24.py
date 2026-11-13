@@ -9,7 +9,7 @@ import json
 import tempfile
 import urllib.request
 from datetime import datetime, timedelta
-from functools import cache
+from functools import cache, lru_cache
 from zoneinfo import ZoneInfo
 
 from PIL import Image, ImageDraw, ImageFont
@@ -40,6 +40,20 @@ def _font(size, bold):
     return ImageFont.truetype("DejaVuSans-Bold.ttf" if bold else "DejaVuSans.ttf", size)
 
 
+@lru_cache(maxsize=1)
+def _school(day):
+    """The school's two fixed ids, looked up once per day."""
+    units = _post(
+        "services/skola24/get/timetable/viewer/units",
+        {"getTimetableViewerUnitsRequest": {"hostName": HOST}},
+    )["getTimetableViewerUnitsResponse"]["units"]
+    unit = next(u["unitGuid"] for u in units if u["unitId"] == UNIT)
+    school_year = _post(
+        "get/active/school/years", {"hostName": HOST, "checkSchoolYearsFeatures": False}
+    )["activeSchoolYears"][0]["guid"]
+    return unit, school_year
+
+
 def fetch_schedule(id: str, week: int | None, whole_week: bool) -> str:
     """Return the path to a PNG of the schedule for a class or teacher signature.
 
@@ -54,14 +68,7 @@ def fetch_schedule(id: str, week: int | None, whole_week: bool) -> str:
     year, this_week, weekday = day.isocalendar()
     width, height = (1200, 800) if whole_week else (500, 800)
 
-    units = _post(
-        "services/skola24/get/timetable/viewer/units",
-        {"getTimetableViewerUnitsRequest": {"hostName": HOST}},
-    )["getTimetableViewerUnitsResponse"]["units"]
-    unit = next(u["unitGuid"] for u in units if u["unitId"] == UNIT)
-    school_year = _post(
-        "get/active/school/years", {"hostName": HOST, "checkSchoolYearsFeatures": False}
-    )["activeSchoolYears"][0]["guid"]
+    unit, school_year = _school(datetime.now(ZoneInfo("Europe/Stockholm")).date())
 
     data = _post(
         "render/timetable",

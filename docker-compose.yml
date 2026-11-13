@@ -30,6 +30,11 @@ services:
     security_opt:
       - no-new-privileges:true
     mem_limit: 256m
+    pids_limit: 100
+    logging:
+      options:
+        max-size: 1m
+        max-file: "3"
 
 volumes:
   data:
