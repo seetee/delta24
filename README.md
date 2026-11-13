@@ -15,19 +15,23 @@ The bot is silent in 1:1 chats and in groups the owner is not in.
 
 ## Run it
 
-1. Start it and read the bot's invite link from the log:
+1. On a machine with Docker, download the compose file and start it.
+   Docker fetches the rest of this repo by itself:
 
    ```
+   curl -O https://raw.githubusercontent.com/seetee/delta24/main/docker-compose.yml
    docker compose up -d --build
    docker compose logs bot
    ```
+
+   The log shows the bot's invite link.
 
 2. Open the invite link in Delta Chat and send the bot any message. The
    first person to do this becomes the bot's owner, so do it right away
    and keep the link private until then.
 3. Add the bot to a group you are in.
 
-Update: `git pull && docker compose up -d --build`.
+Update: run `docker compose up -d --build` again.
 
 The volume `data` holds the bot's profile and keys. If it is deleted, the
 bot becomes a new contact, forgets its owner, and must be invited again.
@@ -38,6 +42,9 @@ bot becomes a new contact, forgets its owner, and must be invited again.
 uv run test_bot.py                  # check the command parser
 uv run bot.py                       # run without Docker, profile in ./data
 ```
+
+`docker compose build` always builds what is on GitHub. To build local
+changes, set `context: .` in `docker-compose.yml` for the moment.
 
 ## Change how schedules are fetched
 

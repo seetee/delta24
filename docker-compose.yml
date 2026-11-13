@@ -1,8 +1,7 @@
 services:
   bot:
     build:
-      # To run from this file alone, replace "." with the repo's git URL.
-      context: .
+      context: https://github.com/seetee/delta24.git#main
       dockerfile_inline: |
         FROM python:3.14-slim
         COPY --from=ghcr.io/astral-sh/uv:0.13.8 /uv /bin/uv
