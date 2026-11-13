@@ -48,3 +48,7 @@ change the import line in `bot.py`.
 
 `skola24.py` uses the same undocumented API as Skola24's own viewer page.
 It can change without notice.
+
+## Licence
+
+GNU Affero General Public License v3.0, see `LICENSE`.
